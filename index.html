@@ -19,38 +19,39 @@
         </div>
     </div>
 
-    <main class="main" style="position: relative; z-index: 2;">
-        <section class="filter-bar">
-            <div class="dropdown-row">
-                <div class="multi-select" id="city-select">
-                    <div class="multi-select__trigger" id="city-trigger">
-                        <span class="multi-select__label">国家/地区</span>
-                        <span class="multi-select__arrow">▾</span>
-                    </div>
-                    <div class="multi-select__menu" id="city-menu"></div>
+    <div class="filter-bar" id="filter-bar" style="z-index: 3;">
+        <div class="dropdown-row">
+            <div class="multi-select" id="city-select">
+                <div class="multi-select__trigger" id="city-trigger">
+                    <span class="multi-select__label">国家/地区</span>
+                    <span class="multi-select__arrow">▾</span>
                 </div>
-                <div class="multi-select" id="source-select">
-                    <div class="multi-select__trigger" id="source-trigger">
-                        <span class="multi-select__label">数据源</span>
-                        <span class="multi-select__arrow">▾</span>
-                    </div>
-                    <div class="multi-select__menu" id="source-menu"></div>
+                <div class="multi-select__menu" id="city-menu"></div>
+            </div>
+            <div class="multi-select" id="source-select">
+                <div class="multi-select__trigger" id="source-trigger">
+                    <span class="multi-select__label">数据源</span>
+                    <span class="multi-select__arrow">▾</span>
                 </div>
-                <div class="search-box">
-                    <input type="text" id="search-input" class="search-box__input" placeholder="搜索标题/摘要...">
+                <div class="multi-select__menu" id="source-menu"></div>
+            </div>
+            <div class="search-box">
+                <input type="text" id="search-input" class="search-box__input" placeholder="搜索标题/摘要...">
+            </div>
+            <div class="date-input_cont">
+                <p>从</p>
+                <div class="date-input_container">
+                    <input type="date" id="date-start" class="date-input">
                 </div>
-                <div class="date-input_cont">
-                    <p>从</p>
-                    <div class="date-input_container">
-                        <input type="date" id="date-start" class="date-input">
-                    </div>
-                    <p>到</p>
-                    <div class="date-input_container">
-                        <input type="date" id="date-end" class="date-input">
-                    </div>
+                <p>到</p>
+                <div class="date-input_container">
+                    <input type="date" id="date-end" class="date-input">
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
+
+    <main class="main" style="position: relative; z-index: 2;">
         <section class="news">
             <div class="news_container"></div>
             <div id="loading-indicator" class="loading-indicator" style="display:none;">加载中...</div>
