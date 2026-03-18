@@ -27,12 +27,12 @@ export class MapManager {
         this.YMapMarker = YMapMarker;
     }
 
-    addCity(cityData, onCityClick) {
+    addCity(cityData, onCityClick, newsCount = 0) {
         // 不给"全球"画多边形
         if (cityData.name !== '全球') {
             this.addPolygon(cityData, onCityClick);
         }
-        this.addMarker(cityData, onCityClick);
+        this.addMarker(cityData, onCityClick, newsCount);
     }
 
     addPolygon(cityData, onClick) {
@@ -47,8 +47,8 @@ export class MapManager {
         this.map.addChild(polygon);
     }
 
-    addMarker(cityData, onClick) {
-        const markerElement = this.createMarkerElement(cityData);
+    addMarker(cityData, onClick, newsCount = 0) {
+        const markerElement = this.createMarkerElement(cityData, newsCount);
         const marker = new this.YMapMarker({
             coordinates: cityData.center,
             onClick: () => onClick(cityData._id, 'marker')
@@ -57,7 +57,7 @@ export class MapManager {
         this.map.addChild(marker);
     }
 
-    createMarkerElement(cityData) {
+    createMarkerElement(cityData, newsCount = 0) {
         const div = document.createElement('div');
         div.classList.add('marker');
         div.id = `marker_${cityData._id}`;
@@ -73,6 +73,13 @@ export class MapManager {
         name.innerText = cityData.name;
         name.classList.add('marker-text');
         div.appendChild(name);
+
+        if (newsCount > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'marker-badge';
+            badge.textContent = newsCount;
+            div.appendChild(badge);
+        }
 
         return div;
     }

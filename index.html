@@ -227,7 +227,7 @@
                     fetchCities(), fetchSources(), getNewsCountByCity()
                 ]);
 
-                cities.forEach(city => mapManager.addCity(city, window.handleCityClick));
+                cities.forEach(city => mapManager.addCity(city, window.handleCityClick, newsCountMap[city._id] || 0));
                 // 隐藏没有新闻的国家/地区
                 cities.forEach(city => {
                     if ((newsCountMap[city._id] || 0) === 0) {

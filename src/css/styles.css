@@ -585,6 +585,20 @@ input[type="date"] {
 .marker.active .marker-text {
     color: black;
 }
+.marker-badge {
+    background-color: #FF4444;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: "Montserrat", sans-serif;
+    min-width: 16px;
+    height: 16px;
+    line-height: 16px;
+    text-align: center;
+    border-radius: 8px;
+    padding: 0 4px;
+    margin-left: -2px;
+}
 
 
 
