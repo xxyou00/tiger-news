@@ -1,5 +1,5 @@
 export const LOCATION = {
-    center: [65, 20],
+    center: [30, 20],
     zoom: 2
 };
 
