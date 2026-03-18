@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiger News - 全球财经</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="src/css/styles.css" />
+    <link rel="stylesheet" href="src/css/reset.css" />
+    <script crossorigin src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"></script>
+    <script src="https://api-maps.yandex.ru/v3/?apikey=4a5b854d-96e5-4c79-a645-30394876ec4c&lang=zh_CN"></script>
+</head>
+<body>
+
+    <div class="preloader" id="preloader">
+        <div class="preloader__content">
+            <div class="preloader__spinner"></div>
+            <img src="https://www.itiger.com/favicon.ico" alt="Tiger" class="preloader__logo" style="border-radius:8px;">
+        </div>
+    </div>
+
+    <main class="main" style="position: relative; z-index: 2;">
+        <section class="filter-bar">
+            <div class="dropdown-row">
+                <div class="multi-select" id="city-select">
+                    <div class="multi-select__trigger" id="city-trigger">
+                        <span class="multi-select__label">国家/地区</span>
+                        <span class="multi-select__arrow">▾</span>
+                    </div>
+                    <div class="multi-select__menu" id="city-menu"></div>
+                </div>
+                <div class="multi-select" id="source-select">
+                    <div class="multi-select__trigger" id="source-trigger">
+                        <span class="multi-select__label">数据源</span>
+                        <span class="multi-select__arrow">▾</span>
+                    </div>
+                    <div class="multi-select__menu" id="source-menu"></div>
+                </div>
+                <div class="date-input_cont">
+                    <p>从</p>
+                    <div class="date-input_container">
+                        <input type="date" id="date-start" class="date-input">
+                    </div>
+                    <p>到</p>
+                    <div class="date-input_container">
+                        <input type="date" id="date-end" class="date-input">
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="news">
+            <div class="news_container"></div>
+            <div id="loading-indicator" class="loading-indicator" style="display:none;">加载中...</div>
+            <div id="scroll-sentinel" style="height:1px;"></div>
+        </section>
+    </main>
+    <div id="app" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
+    <footer class="footer" id="footer" style="z-index: 2;">
+        <div class="logo">
+            <img src="https://www.itiger.com/favicon.ico" alt="" class="logo__img" style="border-radius:6px;">
+            <p class="logo__text">Tiger News</p>
+        </div>
+    </footer>
+    <script type="module">
+        import { MapManager } from './src/components/Map.js';
+        import { NewsManager } from './src/components/NewsManager.js';
+        import { fetchCities, fetchSources, fetchNews } from './src/api/news.js';
+        import { LOCATION, POLYGON_STYLE, POLYGON_STYLE_ACTIVE } from './src/constants.js';
+        import { newsItemManager } from './src/components/NewsItem.js';
+
+        const FLAG_EMOJI = {
+            '中国':'🇨🇳','中国香港':'🇭🇰','中国台湾':'🇨🇳',
+            '美国':'🇺🇸','日本':'🇯🇵','韩国':'🇰🇷','英国':'🇬🇧','德国':'🇩🇪',
+            '法国':'🇫🇷','欧盟':'🇪🇺','印度':'🇮🇳','俄罗斯':'🇷🇺','以色列':'🇮🇱','伊朗':'🇮🇷',
+            '沙特':'🇸🇦','巴西':'🇧🇷','澳大利亚':'🇦🇺','加拿大':'🇨🇦','全球':'🌐'
+        };
+
+        window.newsItemManager = newsItemManager;
+        window.POLYGON_STYLE = POLYGON_STYLE;
+        window.POLYGON_STYLE_ACTIVE = POLYGON_STYLE_ACTIVE;
+        window.newsManager = new NewsManager();
+        let mapManager;
+        let citiesWithNews = [];
+
+        function setupDropdown(triggerId, menuId) {
+            const trigger = document.getElementById(triggerId);
+            const menu = document.getElementById(menuId);
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.multi-select__menu.open').forEach(m => {
+                    if (m !== menu) m.classList.remove('open');
+                });
+                menu.classList.toggle('open');
+            });
+        }
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.multi-select__menu.open').forEach(m => m.classList.remove('open'));
+        });
+
+        function renderCityMenu(cities, newsCountMap) {
+            const menu = document.getElementById('city-menu');
+            menu.innerHTML = '';
+            citiesWithNews = cities.filter(c => (newsCountMap[c._id] || 0) > 0);
+
+            // 重置按钮
+            const resetRow = document.createElement('div');
+            resetRow.className = 'multi-select__toggle-all';
+            resetRow.textContent = '重置';
+            resetRow.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = false; });
+                window.newsManager.selectedCities = [];
+                citiesWithNews.forEach(c => {
+                    const marker = document.getElementById(`marker_${c._id}`);
+                    if (marker) marker.classList.remove('active');
+                    if (mapManager) mapManager.updatePolygonStyle(c._id, false);
+                });
+                window.newsManager.resetAndLoad();
+            });
+            menu.appendChild(resetRow);
+
+            citiesWithNews.forEach(city => {
+                const count = newsCountMap[city._id] || 0;
+                const flag = FLAG_EMOJI[city.name] || '🌐';
+                const item = document.createElement('label');
+                item.className = 'multi-select__item';
+                item.innerHTML = `<input type="checkbox" value="${city._id}">
+                    <span class="ms-flag">${flag}</span> ${city.name} <span class="ms-count">(${count})</span>`;
+                item.querySelector('input').addEventListener('change', (e) => {
+                    handleCityToggle(city._id, e.target.checked);
+                });
+                menu.appendChild(item);
+            });
+        }
+
+        function renderSourceMenu(sources) {
+            const menu = document.getElementById('source-menu');
+            menu.innerHTML = '';
+
+            const resetRow = document.createElement('div');
+            resetRow.className = 'multi-select__toggle-all';
+            resetRow.textContent = '重置';
+            resetRow.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = false; });
+                window.newsManager.selectedSources = [];
+                window.newsManager.resetAndLoad();
+            });
+            menu.appendChild(resetRow);
+
+            sources.forEach(source => {
+                const item = document.createElement('label');
+                item.className = 'multi-select__item';
+                item.innerHTML = `<input type="checkbox" value="${source._id}">
+                    ${source.imageUrl ? `<img src="${source.imageUrl}" class="ms-source-icon" onerror="this.style.display='none'">` : ''}
+                    ${source.title}`;
+                item.querySelector('input').addEventListener('change', (e) => {
+                    handleSourceToggle(source._id, e.target.checked);
+                });
+                menu.appendChild(item);
+            });
+        }
+
+        function handleCityToggle(cityId, checked) {
+            const marker = document.getElementById(`marker_${cityId}`);
+            if (marker) marker.classList.toggle('active', checked);
+            if (mapManager) mapManager.updatePolygonStyle(cityId, checked);
+            if (checked) {
+                if (!window.newsManager.selectedCities.includes(cityId))
+                    window.newsManager.selectedCities.push(cityId);
+            } else {
+                window.newsManager.selectedCities = window.newsManager.selectedCities.filter(id => id !== cityId);
+            }
+            window.newsManager.resetAndLoad();
+        }
+
+        function handleSourceToggle(sourceId, checked) {
+            if (checked) {
+                if (!window.newsManager.selectedSources.includes(sourceId))
+                    window.newsManager.selectedSources.push(sourceId);
+            } else {
+                window.newsManager.selectedSources = window.newsManager.selectedSources.filter(id => id !== sourceId);
+            }
+            window.newsManager.resetAndLoad();
+        }
+
+        window.handleCityClick = (el_id) => {
+            const marker = document.getElementById(`marker_${el_id}`);
+            if (!marker) return;
+            const isActive = marker.classList.contains('active');
+            marker.classList.toggle('active');
+            mapManager.updatePolygonStyle(el_id, !isActive);
+            const cb = document.querySelector(`#city-menu input[value="${el_id}"]`);
+            if (cb) cb.checked = !isActive;
+            if (!isActive) {
+                if (!window.newsManager.selectedCities.includes(el_id))
+                    window.newsManager.selectedCities.push(el_id);
+            } else {
+                window.newsManager.selectedCities = window.newsManager.selectedCities.filter(id => id !== el_id);
+            }
+            window.newsManager.resetAndLoad();
+        };
+
+        async function getNewsCountByCity() {
+            try {
+                const bigResp = await fetchNews({ page: 1, limit: 500 });
+                const counts = {};
+                (bigResp.news || []).forEach(n => {
+                    const cid = n.place_id?._id || n.place_id;
+                    if (cid) counts[cid] = (counts[cid] || 0) + 1;
+                });
+                return counts;
+            } catch (e) { return {}; }
+        }
+
+        async function main() {
+            try {
+                await ymaps3.ready;
+                const { YMap, YMapDefaultSchemeLayer, YMapDefaultFeaturesLayer } = ymaps3;
+                mapManager = new MapManager('app', LOCATION, [
+                    new YMapDefaultSchemeLayer({ theme: 'dark', source: 'scheme', projection: "mercator" }),
+                    new YMapDefaultFeaturesLayer({})
+                ]);
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                const [cities, sources, newsCountMap] = await Promise.all([
+                    fetchCities(), fetchSources(), getNewsCountByCity()
+                ]);
+
+                cities.forEach(city => mapManager.addCity(city, window.handleCityClick));
+                // 隐藏没有新闻的国家/地区
+                cities.forEach(city => {
+                    if ((newsCountMap[city._id] || 0) === 0) {
+                        mapManager.hideCityOnMap(city._id);
+                    }
+                });
+
+                setupDropdown('city-trigger', 'city-menu');
+                setupDropdown('source-trigger', 'source-menu');
+                renderCityMenu(cities, newsCountMap);
+                renderSourceMenu(sources);
+
+                await window.newsManager.updateNews();
+
+                const preloader = document.getElementById('preloader');
+                preloader.classList.add('hidden');
+                setTimeout(() => { preloader.remove(); }, 500);
+            } catch (error) {
+                console.error('初始化错误:', error);
+                document.getElementById('preloader')?.classList.add('hidden');
+            }
+        }
+
+        main().catch(console.error);
+    </script>
+
+    <script src="./src/js/header.js"></script>
+    <script src="./src/js/clipboard.js"></script>
+</body>
+</html>
