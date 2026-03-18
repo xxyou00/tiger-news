@@ -8,6 +8,8 @@ export class NewsManager {
         this.isLoading = false;
         this.selectedCities = [];
         this.selectedSources = [];
+        this.searchQuery = '';
+        this.searchTimer = null;
         this.observer = null;
         this.initializeListeners();
         this.initInfiniteScroll();
@@ -16,6 +18,16 @@ export class NewsManager {
     initializeListeners() {
         document.getElementById('date-start').addEventListener('change', () => this.resetAndLoad());
         document.getElementById('date-end').addEventListener('change', () => this.resetAndLoad());
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(this.searchTimer);
+                this.searchTimer = setTimeout(() => {
+                    this.searchQuery = e.target.value.trim();
+                    this.resetAndLoad();
+                }, 400);
+            });
+        }
     }
 
     initInfiniteScroll() {
@@ -54,6 +66,7 @@ export class NewsManager {
             const response = await fetchNews({
                 cities: this.selectedCities,
                 sources: this.selectedSources,
+                search: this.searchQuery || undefined,
                 startDate: startDate ? new Date(startDate).toISOString() : undefined,
                 endDate: endDate ? new Date(endDate + 'T23:59:59.999Z').toISOString() : undefined,
                 page,

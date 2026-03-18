@@ -346,6 +346,29 @@ body {
     height: 16px;
     border-radius: 3px;
 }
+.search-box {
+    flex: 1;
+    min-width: 100px;
+}
+.search-box__input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 14px;
+    background-color: var(--color-gray-ec);
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    outline: none;
+    transition: all .15s ease-in-out;
+}
+.search-box__input:focus {
+    background-color: var(--color-gray-dc);
+}
+.search-box__input::placeholder {
+    color: var(--color-gray-a6);
+}
 
 .news {
     width: 100%;
