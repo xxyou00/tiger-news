@@ -37,7 +37,7 @@ export class NewsManager {
             if (entries[0].isIntersecting && !this.isLoading && this.currentPage < this.totalPages) {
                 this.loadMore();
             }
-        }, { root: document.querySelector('.main'), threshold: 0.1 });
+        }, { root: document.querySelector('.panel-left .news'), threshold: 0.1 });
         this.observer.observe(sentinel);
     }
 
