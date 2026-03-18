@@ -223,7 +223,7 @@ body {
     align-items: center;
     font-family: "Montserrat", sans-serif;
     font-weight: 500;
-    width: 540px;
+    width: 36vw;
     height: 100vh;
     box-sizing: border-box;
     margin: 0;
@@ -242,7 +242,7 @@ body {
 .filter-bar {
     position: absolute;
     top: 16px;
-    left: 588px;
+    left: calc(36vw + 16px);
     right: 16px;
     background-color: rgba(255,255,255,0.95);
     border-radius: 16px;
