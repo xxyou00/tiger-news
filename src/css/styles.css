@@ -310,31 +310,48 @@ body {
     .footer {
         display: none;
     }
+    .dropdown-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .dropdown-row > * {
+        flex: 1 1 calc(50% - 4px);
+        min-width: 0;
+        box-sizing: border-box;
+    }
     .multi-select {
-        min-width: 110px;
+        min-width: 0;
     }
     .multi-select__trigger {
-        padding: 6px 10px;
+        padding: 8px 10px;
         font-size: 13px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .search-box {
+        flex: 1 1 calc(50% - 4px);
     }
     .search-box__input {
-        padding: 6px 10px;
+        padding: 8px 10px;
         font-size: 13px;
-    }
-    .date-input_container {
-        height: 30px;
-        font-size: 13px;
-        padding: 0 8px;
     }
     .date-input_cont {
-        gap: 6px;
+        flex: 1 1 calc(50% - 4px);
+        gap: 4px;
         font-size: 13px;
     }
     .date-input_cont p {
         font-size: 12px;
     }
+    .date-input_container {
+        flex: 1;
+        height: 32px;
+        font-size: 13px;
+        padding: 0 8px;
+    }
     .date-input {
-        width: 90px;
+        width: 100%;
         font-size: 13px;
     }
     .news_container {
