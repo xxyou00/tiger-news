@@ -101,10 +101,28 @@ export class NewsManager {
             return;
         }
 
+        // 合并同标题新闻
+        const merged = [];
+        const titleMap = new Map();
         news.forEach(item => {
-            if (item && typeof item === 'object') {
-                container.insertAdjacentHTML('beforeend', newsItemManager.createNewsItem(item));
+            if (!item || typeof item !== 'object') return;
+            const title = (item.title || '').trim();
+            if (titleMap.has(title)) {
+                const existing = titleMap.get(title);
+                if (item.source_id) existing._extraSources.push(item.source_id);
+                if (item.newsUrl && item.newsUrl !== existing.newsUrl) {
+                    existing._extraUrls.push(item.newsUrl);
+                }
+            } else {
+                item._extraSources = [];
+                item._extraUrls = [];
+                titleMap.set(title, item);
+                merged.push(item);
             }
+        });
+
+        merged.forEach(item => {
+            container.insertAdjacentHTML('beforeend', newsItemManager.createNewsItem(item));
         });
     }
 

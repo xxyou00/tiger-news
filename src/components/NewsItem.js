@@ -36,16 +36,29 @@ class NewsItemManager {
         const src = item.source_id;
         const url = item.newsUrl || '';
         const isGenericUrl = !url || url === 'https://www.jin10.com/flash' || url === 'https://www.jin10.com' || url === 'https://www.jin10.com/';
+
+        // 收集所有数据源（主源 + 额外源）
+        const allSources = [];
+        if (src) allSources.push(src);
+        if (item._extraSources) {
+            item._extraSources.forEach(s => {
+                if (s && !allSources.some(a => a._id === s._id)) allSources.push(s);
+            });
+        }
+        const sourceTags = allSources.map(s =>
+            `<span class="new-source-tag">
+                ${s.imageUrl ? `<img src="${s.imageUrl}" class="new-source-icon" onerror="this.style.display='none'">` : ''}
+                ${s.title || ''}
+            </span>`
+        ).join('');
+
         return `
             <div class="new__item compact">
                 <div class="new__item-header">
                     <span class="new-flag">${flag}</span>
                     <span class="new-country">${name}</span>
                     <span class="new-time">${formatDate(item.dateTime)}</span>
-                    <span class="new-source-tag">
-                        ${src?.imageUrl ? `<img src="${src.imageUrl}" class="new-source-icon" onerror="this.style.display='none'">` : ''}
-                        ${src?.title || ''}
-                    </span>
+                    ${sourceTags}
                     ${isGenericUrl ? '' : `<span class="new__actions">
                         <a href="${url}" class="open-new-compact" target="_blank">查看原文</a>
                         <div class="share-btn-sm" onclick="clipboard('${url}')">
