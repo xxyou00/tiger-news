@@ -297,7 +297,7 @@ body {
         background-color: var(--color-white);
         backdrop-filter: none;
         border-bottom: 1px solid var(--color-gray-ec);
-        z-index: 2;
+        z-index: 100;
     }
     .main {
         position: relative;
@@ -305,7 +305,7 @@ body {
         height: auto;
         min-height: 0;
         overflow-y: visible;
-        z-index: 2;
+        z-index: 1;
     }
     .footer {
         display: none;
@@ -323,7 +323,19 @@ body {
     }
     .date-input_container {
         height: 30px;
-        font-size: 14px;
+        font-size: 13px;
+        padding: 0 8px;
+    }
+    .date-input_cont {
+        gap: 6px;
+        font-size: 13px;
+    }
+    .date-input_cont p {
+        font-size: 12px;
+    }
+    .date-input {
+        width: 90px;
+        font-size: 13px;
     }
     .news_container {
         border-radius: 0;
