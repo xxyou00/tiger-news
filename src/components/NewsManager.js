@@ -33,11 +33,12 @@ export class NewsManager {
     initInfiniteScroll() {
         const sentinel = document.getElementById('scroll-sentinel');
         if (!sentinel) return;
+        const isMobile = window.innerWidth <= 768;
         this.observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting && !this.isLoading && this.currentPage < this.totalPages) {
                 this.loadMore();
             }
-        }, { root: document.querySelector('.main'), threshold: 0.1 });
+        }, { root: isMobile ? null : document.querySelector('.main'), threshold: 0.1 });
         this.observer.observe(sentinel);
     }
 
