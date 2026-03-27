@@ -60,7 +60,7 @@ class NewsItemManager {
                     <span class="new-time">${formatDate(item.dateTime)}</span>
                     ${sourceTags}
                     ${isGenericUrl ? '' : `<span class="new__actions">
-                        <a href="${url}" class="open-new-compact" target="_blank">查看原文</a>
+                        <a href="${url}" class="open-new-compact" target="_blank">更多</a>
                         <div class="share-btn-sm" onclick="clipboard('${url}')">
                             <img src="./src/images/icons/share.png" alt="" class="share-img-sm">
                         </div>

@@ -645,14 +645,15 @@ input[type="date"] {
     margin-top: 4px;
 }
 .open-new-compact {
-    font-size: 13px;
-    padding: 4px 14px;
+    font-size: 12px;
+    padding: 3px 10px;
     text-decoration: none;
     color: #000;
     background-color: var(--color-green);
-    border-radius: 8px;
+    border-radius: 6px;
     font-weight: 600;
     transition: all .15s ease-in-out;
+    white-space: nowrap;
 }
 .open-new-compact:hover { background-color: var(--color-dark-green); }
 .share-btn-sm {
