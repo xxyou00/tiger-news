@@ -260,9 +260,8 @@ body {
     top: 0;
     left: 36vw;
     right: 0;
-    bottom: 0;
+    height: 100%;
     z-index: 1;
-    background-color: #0d1117;
 }
 .dropdown-row {
     display: flex;
@@ -674,7 +673,9 @@ input[type="date"] {
 
 .marker {
     padding: 3px 3px 3px 3px;
-    width: max-content;
+    margin-left: -50%;
+    margin-top: -25%;
+    width: 100%;
     background-color: var(--color-white);
     border-radius: 7px;
     display: flex;
@@ -683,17 +684,6 @@ input[type="date"] {
     gap: 4px;
     cursor: pointer;
     transition: all .3s ease-in-out;
-    transform: translate(-50%, -50%);
-}
-.leaflet-marker-custom {
-    background: none;
-    border: none;
-}
-.leaflet-container {
-    background-color: #0d1117;
-}
-.leaflet-tile-pane {
-    opacity: 1;
 }
 .marker:hover {
     background-color: var(--color-gray-ec);
@@ -840,6 +830,9 @@ input[type="date"] {
     color: var(--color-green);
 }
 
+.ymaps3--search-control__input {
+    font-size: 5px;
+}
 
 /* new__actions in header row */
 .new__actions {

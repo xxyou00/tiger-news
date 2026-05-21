@@ -11,8 +11,7 @@
     <link rel="stylesheet" href="src/css/styles.css" />
     <link rel="stylesheet" href="src/css/reset.css" />
     <script crossorigin src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://api-maps.yandex.ru/v3/?apikey=4a5b854d-96e5-4c79-a645-30394876ec4c&lang=zh_CN"></script>
 </head>
 <body>
 
@@ -74,7 +73,7 @@
         import { MapManager } from './src/components/Map.js';
         import { NewsManager } from './src/components/NewsManager.js';
         import { fetchCities, fetchSources, fetchNews } from './src/api/news.js';
-        import { LOCATION } from './src/constants.js';
+        import { LOCATION, POLYGON_STYLE, POLYGON_STYLE_ACTIVE } from './src/constants.js';
         import { newsItemManager } from './src/components/NewsItem.js';
 
         const FLAG_EMOJI = {
@@ -85,6 +84,8 @@
         };
 
         window.newsItemManager = newsItemManager;
+        window.POLYGON_STYLE = POLYGON_STYLE;
+        window.POLYGON_STYLE_ACTIVE = POLYGON_STYLE_ACTIVE;
         window.newsManager = new NewsManager();
         let mapManager;
         let citiesWithNews = [];
@@ -222,7 +223,13 @@
 
         async function main() {
             try {
-                mapManager = new MapManager('app', LOCATION);
+                await ymaps3.ready;
+                const { YMap, YMapDefaultSchemeLayer, YMapDefaultFeaturesLayer } = ymaps3;
+                mapManager = new MapManager('app', LOCATION, [
+                    new YMapDefaultSchemeLayer({ theme: 'dark', source: 'scheme', projection: "mercator" }),
+                    new YMapDefaultFeaturesLayer({})
+                ]);
+                await new Promise(resolve => setTimeout(resolve, 100));
 
                 const [cities, sources, newsCountMap] = await Promise.all([
                     fetchCities(), fetchSources(), getNewsCountByCity()
