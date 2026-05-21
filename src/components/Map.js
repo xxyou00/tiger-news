@@ -8,27 +8,29 @@ const FLAG_EMOJI = {
 };
 
 export class MapManager {
-    constructor(containerId, location, layers) {
-        this.map = null;
+    constructor(containerId, location) {
         this.markers = new Map();
         this.polygons = new Map();
-        this.init(containerId, location, layers);
+        this.init(containerId, location);
     }
 
-    async init(containerId, location, layers) {
-        await ymaps3.ready;
-        const { YMap, YMapFeature, YMapMarker } = ymaps3;
-        this.map = new YMap(
-            document.getElementById(containerId),
-            { location, showScaleInCopyrights: true },
-            layers
-        );
-        this.YMapFeature = YMapFeature;
-        this.YMapMarker = YMapMarker;
+    init(containerId, location) {
+        this.map = L.map(containerId, {
+            center: [location.center[1], location.center[0]], // Leaflet uses [lat, lng]
+            zoom: location.zoom,
+            zoomControl: false,
+            attributionControl: true
+        });
+
+        // CartoDB Dark Matter with Chinese labels
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(this.map);
     }
 
     addCity(cityData, onCityClick, newsCount = 0) {
-        // 不给"全球"画多边形
         if (cityData.name !== '全球') {
             this.addPolygon(cityData, onCityClick);
         }
@@ -36,25 +38,32 @@ export class MapManager {
     }
 
     addPolygon(cityData, onClick) {
-        const polygon = new this.YMapFeature({
-            geometry: { type: 'Polygon', coordinates: [cityData.coordinates] },
-            id: cityData._id,
-            style: window.POLYGON_STYLE,
-            properties: { _id: cityData._id },
-            onClick: () => onClick(cityData._id, 'polygon')
-        });
+        // Convert coordinates from [lng, lat] to [lat, lng] for Leaflet
+        const latLngs = cityData.coordinates.map(c => [c[1], c[0]]);
+        const polygon = L.polygon(latLngs, {
+            color: '#ffffff44',
+            weight: 1,
+            fillColor: '#ffffff22',
+            fillOpacity: 0.13
+        }).addTo(this.map);
+        polygon.on('click', () => onClick(cityData._id, 'polygon'));
+        polygon._cityId = cityData._id;
         this.polygons.set(cityData._id, polygon);
-        this.map.addChild(polygon);
     }
 
     addMarker(cityData, onClick, newsCount = 0) {
         const markerElement = this.createMarkerElement(cityData, newsCount);
-        const marker = new this.YMapMarker({
-            coordinates: cityData.center,
-            onClick: () => onClick(cityData._id, 'marker')
-        }, markerElement);
+        const icon = L.divIcon({
+            html: markerElement.outerHTML,
+            className: 'leaflet-marker-custom',
+            iconSize: null,
+            iconAnchor: [0, 0]
+        });
+        // Leaflet uses [lat, lng]
+        const marker = L.marker([cityData.center[1], cityData.center[0]], { icon })
+            .addTo(this.map);
+        marker.on('click', () => onClick(cityData._id, 'marker'));
         this.markers.set(cityData._id, marker);
-        this.map.addChild(marker);
     }
 
     createMarkerElement(cityData, newsCount = 0) {
@@ -87,19 +96,23 @@ export class MapManager {
     updatePolygonStyle(cityId, isActive) {
         const polygon = this.polygons.get(cityId);
         if (polygon) {
-            polygon.update({ style: isActive ? window.POLYGON_STYLE_ACTIVE : window.POLYGON_STYLE });
+            if (isActive) {
+                polygon.setStyle({ color: '#FFE10099', weight: 2, fillColor: '#FFE100', fillOpacity: 0.27 });
+            } else {
+                polygon.setStyle({ color: '#ffffff44', weight: 1, fillColor: '#ffffff22', fillOpacity: 0.13 });
+            }
         }
     }
 
     hideCityOnMap(cityId) {
         const marker = this.markers.get(cityId);
         if (marker) {
-            this.map.removeChild(marker);
+            this.map.removeLayer(marker);
             this.markers.delete(cityId);
         }
         const polygon = this.polygons.get(cityId);
         if (polygon) {
-            this.map.removeChild(polygon);
+            this.map.removeLayer(polygon);
             this.polygons.delete(cityId);
         }
     }

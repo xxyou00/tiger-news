@@ -260,7 +260,7 @@ body {
     top: 0;
     left: 36vw;
     right: 0;
-    height: 100%;
+    bottom: 0;
     z-index: 1;
 }
 .dropdown-row {
@@ -673,9 +673,7 @@ input[type="date"] {
 
 .marker {
     padding: 3px 3px 3px 3px;
-    margin-left: -50%;
-    margin-top: -25%;
-    width: 100%;
+    width: max-content;
     background-color: var(--color-white);
     border-radius: 7px;
     display: flex;
@@ -684,6 +682,11 @@ input[type="date"] {
     gap: 4px;
     cursor: pointer;
     transition: all .3s ease-in-out;
+    transform: translate(-50%, -50%);
+}
+.leaflet-marker-custom {
+    background: none;
+    border: none;
 }
 .marker:hover {
     background-color: var(--color-gray-ec);
@@ -830,9 +833,6 @@ input[type="date"] {
     color: var(--color-green);
 }
 
-.ymaps3--search-control__input {
-    font-size: 5px;
-}
 
 /* new__actions in header row */
 .new__actions {
