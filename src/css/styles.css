@@ -262,6 +262,7 @@ body {
     right: 0;
     bottom: 0;
     z-index: 1;
+    background-color: #0d1117;
 }
 .dropdown-row {
     display: flex;
@@ -687,6 +688,12 @@ input[type="date"] {
 .leaflet-marker-custom {
     background: none;
     border: none;
+}
+.leaflet-container {
+    background-color: #0d1117;
+}
+.leaflet-tile-pane {
+    opacity: 1;
 }
 .marker:hover {
     background-color: var(--color-gray-ec);

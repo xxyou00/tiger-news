@@ -19,14 +19,15 @@ export class MapManager {
             center: [location.center[1], location.center[0]], // Leaflet uses [lat, lng]
             zoom: location.zoom,
             zoomControl: false,
-            attributionControl: true
+            attributionControl: false,
+            worldCopyJump: true
         });
 
-        // CartoDB Dark Matter with Chinese labels
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-            subdomains: 'abcd',
-            maxZoom: 19
+        // 高德暗色地图瓦片（中文标注，国内外加载快）
+        L.tileLayer('https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=8&x={x}&y={y}&z={z}&scl=1&ltype=11', {
+            subdomains: '1234',
+            maxZoom: 18,
+            tileSize: 256
         }).addTo(this.map);
     }
 
@@ -41,10 +42,10 @@ export class MapManager {
         // Convert coordinates from [lng, lat] to [lat, lng] for Leaflet
         const latLngs = cityData.coordinates.map(c => [c[1], c[0]]);
         const polygon = L.polygon(latLngs, {
-            color: '#ffffff44',
+            color: 'rgba(255,225,0,0.3)',
             weight: 1,
-            fillColor: '#ffffff22',
-            fillOpacity: 0.13
+            fillColor: 'rgba(255,225,0,0.05)',
+            fillOpacity: 1
         }).addTo(this.map);
         polygon.on('click', () => onClick(cityData._id, 'polygon'));
         polygon._cityId = cityData._id;
@@ -97,9 +98,9 @@ export class MapManager {
         const polygon = this.polygons.get(cityId);
         if (polygon) {
             if (isActive) {
-                polygon.setStyle({ color: '#FFE10099', weight: 2, fillColor: '#FFE100', fillOpacity: 0.27 });
+                polygon.setStyle({ color: 'rgba(255,225,0,0.7)', weight: 2, fillColor: 'rgba(255,225,0,0.2)', fillOpacity: 1 });
             } else {
-                polygon.setStyle({ color: '#ffffff44', weight: 1, fillColor: '#ffffff22', fillOpacity: 0.13 });
+                polygon.setStyle({ color: 'rgba(255,225,0,0.3)', weight: 1, fillColor: 'rgba(255,225,0,0.05)', fillOpacity: 1 });
             }
         }
     }
