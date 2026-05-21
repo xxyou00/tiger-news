@@ -23,8 +23,8 @@ export class MapManager {
             worldCopyJump: true
         });
 
-        // 高德暗色地图瓦片（中文标注，国内外加载快）
-        L.tileLayer('https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=8&x={x}&y={y}&z={z}&scl=1&ltype=11', {
+        // 高德矢量地图瓦片（中文标注）
+        L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
             subdomains: '1234',
             maxZoom: 18,
             tileSize: 256
